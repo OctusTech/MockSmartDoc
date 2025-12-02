@@ -62,7 +62,7 @@ export const Layout: React.FC<LayoutProps> = ({
     <div className="flex h-screen bg-[#E8F3F1] font-sans overflow-hidden">
       {/* Sidebar - Fixed on Desktop, Slide-in on Mobile */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-80 bg-smart-darkest shadow-2xl transform transition-transform duration-300 ease-in-out md:translate-x-0 rounded-r-[3rem] md:rounded-none md:rounded-br-[3rem] md:rounded-tr-[3rem] flex flex-col
+        fixed inset-y-0 left-0 z-50 w-64 bg-smart-darkest shadow-2xl transform transition-transform duration-300 ease-in-out md:translate-x-0 rounded-r-[3rem] md:rounded-none md:rounded-br-[3rem] md:rounded-tr-[3rem] flex flex-col
         ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Logo Area */}
@@ -119,7 +119,7 @@ export const Layout: React.FC<LayoutProps> = ({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative w-full md:ml-80 transition-all duration-300">
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative w-full md:ml-64 transition-all duration-300">
         {/* Top Header */}
         <header className="flex items-center justify-between px-8 py-6">
            

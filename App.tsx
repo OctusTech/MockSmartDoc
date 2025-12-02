@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Layout } from './components/Layout';
 import { LOGO_URL, LOGO_COLOR_URL, MOCK_USERS, MOCK_DOCS, DOC_TYPES, COMPANIES, KNOWLEDGE_SUBJECTS } from './constants';
-import { User, ChatMessage } from './types';
+import { User, ChatMessage, Document, UserRole } from './types';
 import { generateChatResponse, analyzeDocument } from './geminiService';
+
+// --- Shared UI Components ---
 
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
   <div className={`bg-white/80 backdrop-blur-md rounded-[2rem] shadow-sm border border-white/50 p-8 ${className}`}>
@@ -19,7 +21,7 @@ const StatCard = ({ title, value, sub, icon }: { title: string; value: string; s
        <div className="p-2 bg-smart-lightest text-smart-primary rounded-xl">
          {icon}
        </div>
-       <span className="text-xs font-semibold text-gray-400 bg-white/50 px-2 py-1 rounded-full uppercase">Mês</span>
+       {sub && <span className="text-xs font-semibold text-gray-400 bg-white/50 px-2 py-1 rounded-full uppercase">{sub}</span>}
     </div>
     
     <div className="z-10 mt-2">
@@ -79,6 +81,294 @@ const LoginView = ({ onLogin }: { onLogin: () => void }) => (
     </div>
   </div>
 );
+
+const KnowledgeView = () => {
+  const [documents, setDocuments] = useState<Document[]>(MOCK_DOCS);
+  const [dragActive, setDragActive] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      const newDoc: Document = {
+        id: Date.now().toString(),
+        name: file.name,
+        type: 'Novo Upload',
+        uploadedBy: 'Alice Silva',
+        date: new Date().toISOString().split('T')[0],
+        size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+        status: 'Pending'
+      };
+      setDocuments([newDoc, ...documents]);
+    }
+  };
+
+  const filteredDocs = documents.filter(doc => 
+    doc.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    doc.type.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-8">
+      {/* Knowledge Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <StatCard title="Documentos Indexados" value={documents.length.toString()} icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>} />
+        <StatCard title="Armazenamento Utilizado" value="4.2 GB" icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>} />
+        <StatCard title="Uploads Recentes" value="12" sub="Esta Semana" icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-8">
+        <Card>
+          <h2 className="text-2xl font-bold text-smart-darkest mb-2">Base de Conhecimento</h2>
+          <p className="text-gray-500 mb-6">Gerencie os arquivos utilizados para alimentar a inteligência artificial.</p>
+          
+          {/* Upload Box */}
+          <div 
+            className={`border-2 border-dashed rounded-2xl p-10 text-center transition-colors mb-8 cursor-pointer relative overflow-hidden
+              ${dragActive ? 'border-smart-primary bg-smart-lightest/30' : 'border-gray-200 hover:border-smart-accent bg-gray-50/50'}`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+          >
+             <div className="flex flex-col items-center justify-center relative z-10 pointer-events-none">
+                <div className="h-16 w-16 bg-white shadow-sm text-smart-primary rounded-2xl flex items-center justify-center mb-4">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                </div>
+                <h3 className="text-lg font-bold text-smart-darkest">Arraste arquivos aqui ou clique para upload</h3>
+                <p className="text-gray-400 mt-2">Suporte para PDF, DOCX, CSV, MD e TXT</p>
+             </div>
+             <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  const file = e.target.files[0];
+                   const newDoc: Document = {
+                      id: Date.now().toString(),
+                      name: file.name,
+                      type: 'Upload Manual',
+                      uploadedBy: 'Você',
+                      date: new Date().toISOString().split('T')[0],
+                      size: 'Calculating...',
+                      status: 'Pending'
+                    };
+                    setDocuments(prev => [newDoc, ...prev]);
+                }
+             }} />
+          </div>
+
+          {/* Search & Filter */}
+          <div className="flex items-center justify-between mb-6">
+             <div className="relative w-full max-w-md">
+                <span className="absolute left-4 top-3 text-gray-400">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </span>
+                <input 
+                  type="text" 
+                  placeholder="Pesquisar por nome ou tipo..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-smart-lightest"
+                />
+             </div>
+             <div className="flex gap-2">
+               <button className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 text-sm font-medium">Filtrar</button>
+             </div>
+          </div>
+
+          {/* Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="text-xs font-bold text-gray-400 uppercase border-b border-gray-100">
+                  <th className="py-4 px-4">Nome do Arquivo</th>
+                  <th className="py-4 px-4">Tipo</th>
+                  <th className="py-4 px-4">Tamanho</th>
+                  <th className="py-4 px-4">Enviado por</th>
+                  <th className="py-4 px-4">Data</th>
+                  <th className="py-4 px-4">Status</th>
+                  <th className="py-4 px-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm">
+                {filteredDocs.map((doc) => (
+                  <tr key={doc.id} className="hover:bg-gray-50/80 transition-colors group border-b border-gray-50 last:border-0">
+                    <td className="py-4 px-4 font-medium text-smart-darkest flex items-center gap-3">
+                      <div className="p-2 bg-white border border-gray-100 rounded-lg text-smart-primary">
+                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                      </div>
+                      {doc.name}
+                    </td>
+                    <td className="py-4 px-4 text-gray-500">{doc.type}</td>
+                    <td className="py-4 px-4 text-gray-500">{doc.size}</td>
+                    <td className="py-4 px-4 text-gray-500">{doc.uploadedBy}</td>
+                    <td className="py-4 px-4 text-gray-500">{doc.date}</td>
+                    <td className="py-4 px-4">
+                      <Badge status={doc.status} />
+                    </td>
+                    <td className="py-4 px-4 text-right">
+                       <button className="text-gray-400 hover:text-red-500 p-2 opacity-0 group-hover:opacity-100 transition-all">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                       </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+const ConfigView = () => {
+  const [activeTab, setActiveTab] = useState<'users' | 'docTypes' | 'usage'>('users');
+  const [users, setUsers] = useState<User[]>(MOCK_USERS);
+  const [docTypes, setDocTypes] = useState<string[]>(DOC_TYPES);
+  const [usageTypes, setUsageTypes] = useState<string[]>(COMPANIES); // Reusing Companies as Usage Contexts
+
+  const [newItem, setNewItem] = useState('');
+
+  const handleAddItem = (listSetter: React.Dispatch<React.SetStateAction<string[]>>) => {
+    if (newItem.trim()) {
+      listSetter(prev => [...prev, newItem]);
+      setNewItem('');
+    }
+  };
+
+  const handleRemoveItem = (item: string, list: string[], listSetter: React.Dispatch<React.SetStateAction<string[]>>) => {
+    listSetter(list.filter(i => i !== item));
+  };
+
+  return (
+    <div className="space-y-8">
+      <Card>
+         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+              <h2 className="text-2xl font-bold text-smart-darkest">Configurações</h2>
+              <p className="text-gray-500">Gerencie usuários, permissões e tabelas auxiliares do sistema.</p>
+            </div>
+         </div>
+
+         {/* Tabs */}
+         <div className="flex space-x-2 border-b border-gray-100 mb-8 overflow-x-auto">
+            <button 
+              onClick={() => setActiveTab('users')}
+              className={`px-6 py-3 font-medium text-sm transition-colors border-b-2 whitespace-nowrap
+                ${activeTab === 'users' ? 'border-smart-primary text-smart-primary' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+            >
+              Gestão de Usuários e Perfis
+            </button>
+            <button 
+              onClick={() => setActiveTab('docTypes')}
+              className={`px-6 py-3 font-medium text-sm transition-colors border-b-2 whitespace-nowrap
+                ${activeTab === 'docTypes' ? 'border-smart-primary text-smart-primary' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+            >
+              Tipos de Documento
+            </button>
+            <button 
+              onClick={() => setActiveTab('usage')}
+              className={`px-6 py-3 font-medium text-sm transition-colors border-b-2 whitespace-nowrap
+                ${activeTab === 'usage' ? 'border-smart-primary text-smart-primary' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+            >
+              Contextos e Uso (Empresas)
+            </button>
+         </div>
+
+         {/* Content */}
+         <div className="min-h-[400px]">
+            {activeTab === 'users' && (
+               <div className="space-y-6">
+                 <div className="flex justify-end">
+                    <button className="bg-smart-darkest hover:bg-smart-primary text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                       Novo Usuário
+                    </button>
+                 </div>
+                 <div className="overflow-x-auto">
+                   <table className="w-full text-left">
+                     <thead>
+                       <tr className="text-xs font-bold text-gray-400 uppercase border-b border-gray-100">
+                         <th className="py-3 px-4">Nome</th>
+                         <th className="py-3 px-4">Email</th>
+                         <th className="py-3 px-4">Perfil (Role)</th>
+                         <th className="py-3 px-4">Status</th>
+                         <th className="py-3 px-4 text-right">Ações</th>
+                       </tr>
+                     </thead>
+                     <tbody className="text-sm">
+                       {users.map(user => (
+                         <tr key={user.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
+                           <td className="py-4 px-4 font-medium text-smart-darkest">{user.name}</td>
+                           <td className="py-4 px-4 text-gray-500">{user.email}</td>
+                           <td className="py-4 px-4">
+                             <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-lg text-xs font-bold">{user.role}</span>
+                           </td>
+                           <td className="py-4 px-4">
+                             <span className={`w-2 h-2 inline-block rounded-full mr-2 ${user.status === 'Active' ? 'bg-green-500' : 'bg-red-400'}`}></span>
+                             {user.status === 'Active' ? 'Ativo' : 'Inativo'}
+                           </td>
+                           <td className="py-4 px-4 text-right">
+                             <button className="text-smart-primary hover:text-smart-darkest font-medium text-xs">Editar</button>
+                           </td>
+                         </tr>
+                       ))}
+                     </tbody>
+                   </table>
+                 </div>
+               </div>
+            )}
+
+            {(activeTab === 'docTypes' || activeTab === 'usage') && (
+               <div className="max-w-2xl mx-auto space-y-6">
+                  <div className="flex gap-4">
+                     <input 
+                       type="text" 
+                       value={newItem}
+                       onChange={(e) => setNewItem(e.target.value)}
+                       placeholder={activeTab === 'docTypes' ? "Ex: Contrato de Confidencialidade" : "Ex: Departamento Jurídico"}
+                       className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-smart-lightest outline-none"
+                     />
+                     <button 
+                       onClick={() => handleAddItem(activeTab === 'docTypes' ? setDocTypes : setUsageTypes)}
+                       className="bg-smart-primary hover:bg-smart-medium text-white px-6 py-3 rounded-xl font-bold transition-colors"
+                     >
+                       Adicionar
+                     </button>
+                  </div>
+                  
+                  <div className="bg-gray-50 rounded-2xl p-4 space-y-2">
+                     {(activeTab === 'docTypes' ? docTypes : usageTypes).map((item, idx) => (
+                       <div key={idx} className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-100 group">
+                          <span className="text-gray-700 font-medium">{item}</span>
+                          <button 
+                            onClick={() => handleRemoveItem(item, activeTab === 'docTypes' ? docTypes : usageTypes, activeTab === 'docTypes' ? setDocTypes : setUsageTypes)}
+                            className="text-gray-300 hover:text-red-500 transition-colors"
+                          >
+                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                          </button>
+                       </div>
+                     ))}
+                  </div>
+               </div>
+            )}
+         </div>
+      </Card>
+    </div>
+  );
+};
 
 const DashboardView = () => {
   // Stats
@@ -403,6 +693,15 @@ const App = () => {
     return <LoginView onLogin={handleLogin} />;
   }
 
+  const renderContent = () => {
+    switch(activeView) {
+      case 'dashboard': return <DashboardView />;
+      case 'knowledge': return <KnowledgeView />;
+      case 'config': return <ConfigView />;
+      default: return <DashboardView />;
+    }
+  };
+
   return (
     <Layout 
       activeView={activeView} 
@@ -411,17 +710,7 @@ const App = () => {
       userRole={user.role}
       userName={user.name}
     >
-      {activeView === 'dashboard' ? (
-        <DashboardView />
-      ) : (
-        <div className="flex flex-col items-center justify-center h-full text-center p-8">
-            <div className="bg-white/50 p-8 rounded-3xl shadow-sm border border-white/60 backdrop-blur-sm">
-               <svg className="w-16 h-16 text-smart-primary mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-               <h2 className="text-2xl font-bold text-smart-darkest mb-2">Em Construção</h2>
-               <p className="text-gray-500">O módulo de {activeView === 'knowledge' ? 'Conhecimento' : 'Configurações'} será implementado em breve.</p>
-            </div>
-         </div>
-      )}
+      {renderContent()}
     </Layout>
   );
 };

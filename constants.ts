@@ -11,8 +11,8 @@ export const COLORS = {
   white: '#FFFFFF',
 };
 
-export const LOGO_URL = "https://raw.githubusercontent.com/synapiens/uteis/refs/heads/main/LogoPaipe/Marca_paipe-full-inverted.png";
-export const LOGO_COLOR_URL = "https://raw.githubusercontent.com/synapiens/uteis/refs/heads/main/LogoPaipe/Marca_paipe-color-full.png";
+export const LOGO_URL = "https://raw.githubusercontent.com/synapiens/uteis/refs/heads/main/LogoPaipe/Marca_paipe-inverted.png";
+export const LOGO_COLOR_URL = "https://raw.githubusercontent.com/synapiens/uteis/refs/heads/main/LogoPaipe/Marca_paipe-fullcolor.png";
 
 export const MOCK_USERS: User[] = [
   { id: '1', name: 'Alice Silva', email: 'alice@paipe.co', role: UserRole.ADMIN, status: 'Active' },

@@ -50,7 +50,7 @@ const LoginView = ({ onLogin }: { onLogin: () => void }) => (
       <div className="bg-white p-10 text-center">
          <img src={LOGO_COLOR_URL} alt="Logo" className="h-16 mx-auto mb-6 object-contain" />
          <h1 className="text-3xl font-bold text-smart-darkest mb-2">Bem-vindo</h1>
-         <p className="text-gray-500 text-sm">SmartDoc AI Intelligence Platform</p>
+         <p className="text-gray-500 text-sm">Smart Doc AI Intelligence Platform</p>
       </div>
       <div className="px-10 pb-10 space-y-5">
         <div>
@@ -100,7 +100,7 @@ const DashboardView = () => {
   const [chatSubject, setChatSubject] = useState(KNOWLEDGE_SUBJECTS[0]);
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
-    { id: '0', role: 'model', text: 'Olá! Sou o assistente SmartDoc. Selecione um tópico para começar.', timestamp: new Date() }
+    { id: '0', role: 'model', text: 'Olá! Sou o assistente Smart Doc. Selecione um tópico para começar.', timestamp: new Date() }
   ]);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -385,202 +385,43 @@ const DashboardView = () => {
   );
 };
 
-const KnowledgeView = () => {
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-           <h1 className="text-3xl font-bold text-smart-darkest">Base de Conhecimento</h1>
-           <p className="text-gray-500">Gerencie todos os documentos da organização</p>
-        </div>
-        <button className="bg-smart-darkest text-white px-6 py-3 rounded-2xl hover:bg-smart-primary transition-colors flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-          Upload Novo Arquivo
-        </button>
-      </div>
+const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [activeView, setActiveView] = useState('dashboard');
+  const user = MOCK_USERS[0];
 
-      <Card className="p-0 overflow-hidden border-none shadow-md">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-[#F8FBFA] text-smart-darkest border-b border-gray-100">
-              <tr>
-                <th className="px-8 py-5 text-xs font-bold uppercase tracking-wider text-gray-500">Documento</th>
-                <th className="px-8 py-5 text-xs font-bold uppercase tracking-wider text-gray-500">Tipo</th>
-                <th className="px-8 py-5 text-xs font-bold uppercase tracking-wider text-gray-500">Tamanho</th>
-                <th className="px-8 py-5 text-xs font-bold uppercase tracking-wider text-gray-500">Enviado Por</th>
-                <th className="px-8 py-5 text-xs font-bold uppercase tracking-wider text-gray-500">Data</th>
-                <th className="px-8 py-5 text-xs font-bold uppercase tracking-wider text-gray-500">Status</th>
-                <th className="px-8 py-5 text-xs font-bold uppercase tracking-wider text-gray-500 text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50 bg-white">
-              {MOCK_DOCS.map((doc) => (
-                <tr key={doc.id} className="hover:bg-gray-50 transition-colors group">
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-3">
-                       <div className="bg-smart-lightest p-2 rounded-lg text-smart-primary">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                       </div>
-                       <span className="font-semibold text-gray-800">{doc.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-8 py-5 text-sm font-medium text-gray-500">{doc.type}</td>
-                  <td className="px-8 py-5 text-sm text-gray-500">{doc.size}</td>
-                  <td className="px-8 py-5 text-sm text-gray-500 flex items-center gap-2">
-                     <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
-                        {doc.uploadedBy.charAt(0)}
-                     </div>
-                     {doc.uploadedBy}
-                  </td>
-                  <td className="px-8 py-5 text-sm text-gray-500">{doc.date}</td>
-                  <td className="px-8 py-5"><Badge status={doc.status} /></td>
-                  <td className="px-8 py-5 text-right">
-                    <button className="text-gray-400 hover:text-smart-primary transition-colors">
-                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-    </div>
-  );
-};
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
 
-const ConfigView = () => {
-  const [activeTab, setActiveTab] = useState<'users' | 'profiles' | 'tables'>('users');
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setActiveView('dashboard');
+  };
 
-  const tabs = [
-    { id: 'users', label: 'Gestão de Usuários' },
-    { id: 'profiles', label: 'Perfis de Acesso' },
-    { id: 'tables', label: 'Tabelas de Apoio' },
-  ];
-
-  return (
-    <div className="space-y-8">
-      <div>
-         <h1 className="text-3xl font-bold text-smart-darkest">Configurações</h1>
-         <p className="text-gray-500">Administração do sistema e parametrização</p>
-      </div>
-      
-      {/* Tab Nav */}
-      <div className="bg-white/50 backdrop-blur-md rounded-2xl p-2 inline-flex border border-white shadow-sm">
-        {tabs.map(tab => (
-           <button
-             key={tab.id}
-             onClick={() => setActiveTab(tab.id as any)}
-             className={`px-8 py-3 text-sm font-bold rounded-xl transition-all
-               ${activeTab === tab.id 
-                 ? 'bg-smart-darkest text-white shadow-md' 
-                 : 'text-gray-500 hover:bg-white/50'}`}
-           >
-             {tab.label}
-           </button>
-        ))}
-      </div>
-
-      <Card>
-        {activeTab === 'users' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-               <h3 className="font-bold text-xl text-smart-darkest">Usuários Cadastrados</h3>
-               <button className="text-sm bg-smart-primary text-white px-4 py-2 rounded-xl hover:bg-smart-darkest transition-colors shadow-md">+ Adicionar</button>
-            </div>
-            <div className="overflow-hidden rounded-xl border border-gray-100">
-               <table className="w-full text-left text-sm">
-                 <thead className="bg-gray-50 text-gray-500 font-bold uppercase text-xs">
-                   <tr><th className="p-4">Nome</th><th className="p-4">Email</th><th className="p-4">Perfil</th><th className="p-4">Status</th></tr>
-                 </thead>
-                 <tbody className="divide-y divide-gray-50 bg-white">
-                   {MOCK_USERS.map(u => (
-                     <tr key={u.id}>
-                       <td className="p-4 font-medium text-gray-800">{u.name}</td>
-                       <td className="p-4 text-gray-500">{u.email}</td>
-                       <td className="p-4"><span className="px-3 py-1 rounded-lg bg-gray-100 text-gray-600 text-xs font-semibold">{u.role}</span></td>
-                       <td className="p-4"><Badge status={u.status} /></td>
-                     </tr>
-                   ))}
-                 </tbody>
-               </table>
-            </div>
-          </div>
-        )}
-        {activeTab === 'profiles' && (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-            <div className="bg-gray-50 p-6 rounded-full mb-4">
-               <svg className="w-10 h-10 opacity-30" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" /></svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-600">Configuração de Perfis</h3>
-            <p className="text-sm">Área administrativa para definir permissões de acesso.</p>
-          </div>
-        )}
-        {activeTab === 'tables' && (
-          <div className="grid grid-cols-2 gap-10">
-            <div>
-               <h4 className="font-bold mb-4 text-gray-700 flex items-center gap-2">
-                  <span className="w-2 h-6 bg-smart-accent rounded-full"></span>
-                  Tipos de Documento
-               </h4>
-               <ul className="space-y-2">
-                 {DOC_TYPES.map(t => (
-                    <li key={t} className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-transparent hover:border-gray-200 transition-colors">
-                       <span className="text-sm font-medium text-gray-700">{t}</span>
-                       <button className="text-gray-300 hover:text-red-400"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
-                    </li>
-                 ))}
-                 <li className="mt-2 text-center p-2 border-2 border-dashed border-gray-200 rounded-xl text-smart-primary text-sm font-bold cursor-pointer hover:bg-gray-50 transition-colors">
-                    + Adicionar Tipo
-                 </li>
-               </ul>
-            </div>
-            <div>
-               <h4 className="font-bold mb-4 text-gray-700 flex items-center gap-2">
-                  <span className="w-2 h-6 bg-smart-primary rounded-full"></span>
-                  Áreas de Conhecimento
-               </h4>
-               <ul className="space-y-2">
-                 {KNOWLEDGE_SUBJECTS.map(t => (
-                    <li key={t} className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-transparent hover:border-gray-200 transition-colors">
-                       <span className="text-sm font-medium text-gray-700">{t}</span>
-                       <button className="text-gray-300 hover:text-red-400"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
-                    </li>
-                 ))}
-                 <li className="mt-2 text-center p-2 border-2 border-dashed border-gray-200 rounded-xl text-smart-primary text-sm font-bold cursor-pointer hover:bg-gray-50 transition-colors">
-                    + Adicionar Área
-                 </li>
-               </ul>
-            </div>
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-};
-
-// --- Main App Component ---
-
-const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [user] = useState<User>(MOCK_USERS[0]);
-
-  if (!isAuthenticated) {
-    return <LoginView onLogin={() => setIsAuthenticated(true)} />;
+  if (!isLoggedIn) {
+    return <LoginView onLogin={handleLogin} />;
   }
 
   return (
     <Layout 
-      activeView={currentView} 
-      onChangeView={setCurrentView} 
-      onLogout={() => setIsAuthenticated(false)}
+      activeView={activeView} 
+      onChangeView={setActiveView} 
+      onLogout={handleLogout}
       userRole={user.role}
       userName={user.name}
     >
-      {currentView === 'dashboard' && <DashboardView />}
-      {currentView === 'knowledge' && <KnowledgeView />}
-      {currentView === 'config' && <ConfigView />}
+      {activeView === 'dashboard' ? (
+        <DashboardView />
+      ) : (
+        <div className="flex flex-col items-center justify-center h-full text-center p-8">
+            <div className="bg-white/50 p-8 rounded-3xl shadow-sm border border-white/60 backdrop-blur-sm">
+               <svg className="w-16 h-16 text-smart-primary mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+               <h2 className="text-2xl font-bold text-smart-darkest mb-2">Em Construção</h2>
+               <p className="text-gray-500">O módulo de {activeView === 'knowledge' ? 'Conhecimento' : 'Configurações'} será implementado em breve.</p>
+            </div>
+         </div>
+      )}
     </Layout>
   );
 };

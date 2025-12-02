@@ -52,7 +52,7 @@ export const Layout: React.FC<LayoutProps> = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Close menu when clicking a link (optional, depends on UX preference)
+  // Close menu when clicking a link on mobile
   const handleNavClick = (view: string) => {
     onChangeView(view);
     setIsMenuOpen(false);
@@ -60,17 +60,17 @@ export const Layout: React.FC<LayoutProps> = ({
 
   return (
     <div className="flex h-screen bg-[#E8F3F1] font-sans overflow-hidden">
-      {/* Sidebar - Slide-in Drawer Style */}
+      {/* Sidebar - Fixed on Desktop, Slide-in on Mobile */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-80 bg-smart-darkest shadow-2xl transform transition-transform duration-300 ease-in-out rounded-r-[3rem]
+        fixed inset-y-0 left-0 z-50 w-80 bg-smart-darkest shadow-2xl transform transition-transform duration-300 ease-in-out md:translate-x-0 rounded-r-[3rem] md:rounded-none md:rounded-br-[3rem] md:rounded-tr-[3rem] flex flex-col
         ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Logo Area */}
-        <div className="h-32 flex items-center justify-center p-6 relative">
-          {/* Close Button inside Sidebar */}
+        <div className="h-32 flex items-center justify-center p-6 relative flex-shrink-0">
+          {/* Close Button inside Sidebar (Mobile only) */}
           <button 
             onClick={() => setIsMenuOpen(false)}
-            className="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors"
+            className="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors md:hidden"
           >
              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
@@ -81,7 +81,7 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 py-4 space-y-2">
+        <nav className="flex-1 py-4 space-y-2 overflow-y-auto custom-scrollbar">
           <MenuItem 
             label="Dashboard" 
             active={activeView === 'dashboard'} 
@@ -103,7 +103,7 @@ export const Layout: React.FC<LayoutProps> = ({
         </nav>
 
         {/* Logout */}
-        <div className="p-8">
+        <div className="p-8 flex-shrink-0">
            <div className="bg-white/5 rounded-2xl p-4">
               <button 
                 onClick={onLogout}
@@ -119,19 +119,18 @@ export const Layout: React.FC<LayoutProps> = ({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative w-full">
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative w-full md:ml-80 transition-all duration-300">
         {/* Top Header */}
         <header className="flex items-center justify-between px-8 py-6">
            
-           {/* Left Side: Toggle Button (Visible on all screens) */}
+           {/* Left Side: Toggle Button (Visible on Mobile Only) */}
            <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsMenuOpen(true)}
-                className="p-3 bg-white hover:bg-white/80 rounded-xl text-smart-darkest shadow-sm transition-all hover:shadow-md"
+                className="p-3 bg-white hover:bg-white/80 rounded-xl text-smart-darkest shadow-sm transition-all hover:shadow-md md:hidden"
               >
                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" /></svg>
               </button>
-              {/* Optional: Add Logo or Title here if sidebar is closed */}
            </div>
 
            {/* Right Side: User Profile */}
@@ -164,10 +163,10 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
       </main>
       
-      {/* Overlay Backdrop - Visible on all screens when menu is open */}
+      {/* Overlay Backdrop - Visible on Mobile Only when menu is open */}
       {isMenuOpen && (
         <div 
-          className="fixed inset-0 bg-smart-darkest/40 backdrop-blur-sm z-40 transition-opacity duration-300"
+          className="fixed inset-0 bg-smart-darkest/40 backdrop-blur-sm z-40 transition-opacity duration-300 md:hidden"
           onClick={() => setIsMenuOpen(false)}
         ></div>
       )}

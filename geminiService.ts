@@ -11,7 +11,7 @@ export const generateChatResponse = async (
     const model = 'gemini-2.5-flash';
     
     // Construct a context-aware prompt based on the "Knowledge Base" simulation
-    const systemInstruction = `You are SmartDoc, an intelligent assistant for the company. 
+    const systemInstruction = `You are Smart Doc, an intelligent assistant for the company. 
     The user is asking questions about the subject: "${subject}". 
     Assume you have access to a vast knowledge base about this topic.
     Answer professionally, concisely, and use Markdown formatting.

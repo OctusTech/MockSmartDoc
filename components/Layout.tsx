@@ -108,21 +108,7 @@ export const Layout: React.FC<LayoutProps> = ({
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         {/* Top Header */}
-        <header className="flex items-center justify-between px-8 py-6">
-           {/* Search Bar */}
-           <div className="flex-1 max-w-xl">
-             <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                </span>
-                <input 
-                  type="text" 
-                  placeholder="Pesquisar documentos, cláusulas ou análises..." 
-                  className="w-full py-3 pl-12 pr-4 bg-white/60 backdrop-blur-md border-none rounded-full text-gray-700 shadow-sm focus:ring-2 focus:ring-smart-primary/50 outline-none transition-all placeholder-gray-400"
-                />
-             </div>
-           </div>
-
+        <header className="flex items-center justify-end px-8 py-6">
            {/* User Profile */}
            <div className="flex items-center gap-6 ml-4">
               <div className="flex items-center gap-4 text-gray-500">

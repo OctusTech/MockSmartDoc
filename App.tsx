@@ -321,7 +321,7 @@ const DashboardView = () => {
                    onChange={(e) => setChatInput(e.target.value)}
                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                    placeholder="Digite sua pergunta..."
-                   className="w-full pl-4 pr-12 py-3 bg-gray-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-smart-lightest outline-none"
+                   className="w-full pl-4 pr-12 py-3 bg-gray-50 rounded-xl border-none text-sm text-gray-900 focus:ring-2 focus:ring-smart-lightest outline-none"
                  />
                  <button 
                    onClick={handleSendMessage}

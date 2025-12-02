@@ -50,18 +50,31 @@ export const Layout: React.FC<LayoutProps> = ({
   userRole,
   userName
 }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Close menu when clicking a link (optional, depends on UX preference)
+  const handleNavClick = (view: string) => {
+    onChangeView(view);
+    setIsMenuOpen(false);
+  };
 
   return (
     <div className="flex h-screen bg-[#E8F3F1] font-sans overflow-hidden">
-      {/* Sidebar - Rounded Edge Design */}
+      {/* Sidebar - Slide-in Drawer Style */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-72 bg-smart-darkest transform transition-transform duration-300 ease-in-out
-        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0
-        flex flex-col rounded-r-[3rem] shadow-2xl my-0 md:my-0
+        fixed inset-y-0 left-0 z-50 w-80 bg-smart-darkest shadow-2xl transform transition-transform duration-300 ease-in-out rounded-r-[3rem]
+        ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Logo Area */}
-        <div className="h-32 flex items-center justify-center p-6">
+        <div className="h-32 flex items-center justify-center p-6 relative">
+          {/* Close Button inside Sidebar */}
+          <button 
+            onClick={() => setIsMenuOpen(false)}
+            className="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors"
+          >
+             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+
           <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
              <img src={LOGO_URL} alt="Logo" className="h-8 w-auto object-contain" />
           </div>
@@ -72,19 +85,19 @@ export const Layout: React.FC<LayoutProps> = ({
           <MenuItem 
             label="Dashboard" 
             active={activeView === 'dashboard'} 
-            onClick={() => onChangeView('dashboard')}
+            onClick={() => handleNavClick('dashboard')}
             icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>}
           />
           <MenuItem 
             label="Conhecimento" 
             active={activeView === 'knowledge'} 
-            onClick={() => onChangeView('knowledge')}
+            onClick={() => handleNavClick('knowledge')}
             icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>}
           />
           <MenuItem 
             label="Configurações" 
             active={activeView === 'config'} 
-            onClick={() => onChangeView('config')}
+            onClick={() => handleNavClick('config')}
             icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>}
           />
         </nav>
@@ -106,13 +119,25 @@ export const Layout: React.FC<LayoutProps> = ({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative w-full">
         {/* Top Header */}
-        <header className="flex items-center justify-end px-8 py-6">
-           {/* User Profile */}
+        <header className="flex items-center justify-between px-8 py-6">
+           
+           {/* Left Side: Toggle Button (Visible on all screens) */}
+           <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setIsMenuOpen(true)}
+                className="p-3 bg-white hover:bg-white/80 rounded-xl text-smart-darkest shadow-sm transition-all hover:shadow-md"
+              >
+                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" /></svg>
+              </button>
+              {/* Optional: Add Logo or Title here if sidebar is closed */}
+           </div>
+
+           {/* Right Side: User Profile */}
            <div className="flex items-center gap-6 ml-4">
               <div className="flex items-center gap-4 text-gray-500">
-                 <button className="relative p-2 hover:bg-white/50 rounded-full transition-colors">
+                 <button className="relative p-2 hover:bg-white/50 rounded-full transition-colors hidden sm:block">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                  </button>
                  <button className="relative p-2 hover:bg-white/50 rounded-full transition-colors">
@@ -129,14 +154,8 @@ export const Layout: React.FC<LayoutProps> = ({
                   <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-smart-primary to-smart-accent flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
                      {userName.charAt(0)}
                   </div>
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
               </div>
            </div>
-
-           {/* Mobile Toggle */}
-           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden ml-4">
-              <svg className="w-6 h-6 text-smart-darkest" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-           </button>
         </header>
 
         {/* Content Area */}
@@ -145,11 +164,11 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
       </main>
       
-      {/* Mobile overlay */}
-      {isMobileMenuOpen && (
+      {/* Overlay Backdrop - Visible on all screens when menu is open */}
+      {isMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
+          className="fixed inset-0 bg-smart-darkest/40 backdrop-blur-sm z-40 transition-opacity duration-300"
+          onClick={() => setIsMenuOpen(false)}
         ></div>
       )}
     </div>

@@ -94,6 +94,7 @@ const DashboardView = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Chat State
   const [chatSubject, setChatSubject] = useState(KNOWLEDGE_SUBJECTS[0]);
@@ -112,6 +113,15 @@ const DashboardView = () => {
     if (e.target.files && e.target.files[0]) {
       setUploadedFile(e.target.files[0]);
       setAnalysisResult('');
+    }
+  };
+
+  // Helper to reset analysis when context changes
+  const resetAnalysisContext = () => {
+    setUploadedFile(null);
+    setAnalysisResult('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -187,7 +197,10 @@ const DashboardView = () => {
                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Tipo de Documento</label>
                    <select 
                       value={selectedDocType} 
-                      onChange={(e) => setSelectedDocType(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedDocType(e.target.value);
+                        resetAnalysisContext();
+                      }}
                       className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm font-medium text-gray-600 focus:ring-2 focus:ring-smart-lightest outline-none"
                     >
                       {DOC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
@@ -197,7 +210,10 @@ const DashboardView = () => {
                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Empresa / Fonte</label>
                     <select 
                       value={selectedCompany} 
-                      onChange={(e) => setSelectedCompany(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedCompany(e.target.value);
+                        resetAnalysisContext();
+                      }}
                       className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm font-medium text-gray-600 focus:ring-2 focus:ring-smart-lightest outline-none"
                     >
                       {COMPANIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -207,7 +223,14 @@ const DashboardView = () => {
 
               {/* Upload Area */}
               <div className="bg-[#F8FBFA] border-2 border-dashed border-smart-accent/30 rounded-2xl p-6 text-center hover:border-smart-primary transition-colors cursor-pointer group mb-4">
-                 <input type="file" onChange={handleFileUpload} className="hidden" id="file-upload" accept=".pdf,.doc,.docx,.txt" />
+                 <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  onChange={handleFileUpload} 
+                  className="hidden" 
+                  id="file-upload" 
+                  accept=".pdf,.doc,.docx,.txt" 
+                 />
                  <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center justify-center h-full w-full">
                     <div className="h-12 w-12 bg-smart-lightest text-smart-primary rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
@@ -217,17 +240,40 @@ const DashboardView = () => {
                  </label>
               </div>
 
-              {/* Action Button */}
-              <button 
-                onClick={handleAnalyze}
-                disabled={!uploadedFile || isAnalyzing}
-                className={`w-full py-4 rounded-2xl font-bold text-white transition-all shadow-lg flex items-center justify-center gap-3 mb-6
-                  ${!uploadedFile || isAnalyzing 
-                    ? 'bg-gray-300 cursor-not-allowed shadow-none' 
-                    : 'bg-smart-darkest hover:bg-smart-primary hover:shadow-xl transform hover:-translate-y-1'}`}
-              >
-                {isAnalyzing ? 'Processando com IA...' : 'Iniciar Análise Inteligente'}
-              </button>
+              {/* Actions Area */}
+              <div className="flex items-center justify-between mb-6 gap-4">
+                {/* Download Button */}
+                <button 
+                  disabled={!analysisResult}
+                  onClick={() => alert("Simulação: Download do PDF da análise iniciado.")}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold border-2 transition-all text-sm
+                    ${analysisResult 
+                      ? 'border-gray-200 text-smart-primary hover:border-smart-primary hover:bg-smart-lightest/20 cursor-pointer' 
+                      : 'border-transparent text-gray-300 bg-gray-50 cursor-not-allowed'}`}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                  <span>Download PDF</span>
+                </button>
+
+                {/* Start Analysis Button */}
+                <button 
+                  onClick={handleAnalyze}
+                  disabled={!uploadedFile || isAnalyzing}
+                  className={`px-8 py-3 rounded-2xl font-bold text-white transition-all shadow-lg flex items-center gap-2 text-sm
+                    ${!uploadedFile || isAnalyzing 
+                      ? 'bg-gray-300 cursor-not-allowed shadow-none' 
+                      : 'bg-smart-darkest hover:bg-smart-primary hover:shadow-xl transform hover:-translate-y-1'}`}
+                >
+                  {isAnalyzing ? (
+                    <>Processando...</>
+                  ) : (
+                    <>
+                      Iniciar Análise
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    </>
+                  )}
+                </button>
+              </div>
 
               {/* Result Area */}
               <div className="flex-1 bg-[#F8FBFA] rounded-2xl p-6 overflow-y-auto custom-scrollbar border border-gray-100 relative">
